@@ -14,10 +14,9 @@ app.use(getCacheMiddleware())
 import { setCache } from 'express-cacher'
 app.get('/someRoute', (req, res, next ) => {
   const cacheInfo = {
-    key: 'someRouteCache',
+    type: 'JSON', // JSON or TEXT or ...
     status: 200,
     value: 'som value',
-    user: { name: 'kdo' }, 
   }; 
   setCache(cacheInfo)
 })
