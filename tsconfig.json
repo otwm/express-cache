@@ -1,0 +1,26 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "preserve",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "outDir": "./lib/express-cache",
+    "typeRoots": [
+      "./node_modules/@types", "src/typings"
+    ],
+    "lib": ["dom", "es5", "es6", "es2017.object", "es2017"]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
