@@ -1,5 +1,3 @@
-//TODO: debug setting
-
-const { log } = console
+const log = require('debug')('express-cache')
 
 export default log

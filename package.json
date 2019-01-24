@@ -4,10 +4,10 @@
   "description": "익스프레스 용 캐쉬. 기본은 LRU 기반 캐쉬",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll",
+    "test": "DEBUG=express-cache jest --watchAll",
     "testb": "node --inspect-brk --inspect ./node_modules/.bin/jest -i  --watch",
     "build": "rimraf lib && tsc",
-    "boot": "node --inspect boot.js"
+    "boot": "DEBUG=express-cache node --inspect boot.js"
   },
   "keywords": [],
   "author": "otwm <otwmoo@gmail.com> (https://github.com/otwm)",

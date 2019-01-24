@@ -27,13 +27,10 @@ server.use(getCacheMiddleware({
 }))
 
 server.get('/', (_, res) => {
-  console.log(isLengthCalled)
   res.send('test')
 }).get('/test', (_ , res) => {
-  console.log('=== test')
   res.send('test')
 }).get('/ep', (_ , res) => {
-  console.log('=== ep')
   res.send('e')
 })
 
