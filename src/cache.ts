@@ -130,13 +130,13 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
 
   function CacheMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
     const getUseCache = (req: express.Request) => {
-      const exists = (list: Array<PolicyList>) => {
+      const exists = (list: Array<PolicyList> | undefined ) => {
         if (isNil(list)) return false
         return !!list.find(({check}: PolicyList) => check(req))
       }
 
-      const exceptList = path<Array<PolicyList>>(['cachePolicy', 'exceptList'], configCache) || []
-      const routeList = path<Array<PolicyList>>(['cachePolicy', 'routeList'], configCache) || []
+      const exceptList = path<Array<PolicyList>>(['cachePolicy', 'exceptList'], configCache)
+      const routeList = path<Array<PolicyList>>(['cachePolicy', 'routeList'], configCache)
 
       if (isNil(exceptList) && isNil(routeList)) return true
       if (exists(exceptList)) return false
@@ -163,13 +163,13 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
         log('requested !!!')
         send(body)
 
-        if (typeof body !== 'string') {
+        if ( typeof body !== 'string' ) {
           return res;
         }
 
         const {statusCode, headersSent} = res
         const headers = res.getHeaders()
-        setCache({req, key: generateKey(req)}, {body, statusCode, headersSent, headers})
+        setCache({ req, key: generateKey(req) }, { body, statusCode, headersSent, headers })
         return res
       }
 
