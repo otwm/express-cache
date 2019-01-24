@@ -66,13 +66,13 @@ app.use(getCacheMiddleware({
   cachePolicy: {
     routeList: [ {
       id: 'someUrl',
-      url: (req) => {
+      check: (req) => {
         return true // or false
       }, 
     }],
     exceptList: [{
       id: 'someUrl',
-      url: (req) => {
+      check: (req) => {
         return true // or false
       }, 
     }],

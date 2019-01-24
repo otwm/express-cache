@@ -1,3 +1,4 @@
+import * as LRU from 'lru-cache'
 import {getCacheMiddleware} from "../cache";
 import * as express from 'express'
 import * as request from 'supertest'
@@ -17,6 +18,27 @@ const rootRoute = (app) => {
       res.json({ok: false})
       return false
     }
+    res.json({ok: true})
+  })
+}
+
+let callCountRoute1 = 0
+let callCountRoute2 = 0
+let callCountE1 = 0
+let callCountE2 = 0
+
+const policyRoute = (app) => {
+  app.get('/route1', (_, res) => {
+    callCountRoute1++
+    res.json({ok: true})
+  }).get('/route2', (_, res) => {
+    callCountRoute2++
+    res.json({ok: true})
+  }).get('/e1', (_, res) => {
+    callCountE1++
+    res.json({ok: true})
+  }).get('/e2', (_, res) => {
+    callCountE2++
     res.json({ok: true})
   })
 }
@@ -48,19 +70,111 @@ describe('getCacheMiddleware', () => {
     initCounter()
   })
 
-  test('hook injection', () => {
-
+  test('hook injection', async () => {
+    let isHookCalled = false
+    const app = initServer(rootRoute, getCacheMiddleware({
+      hook: (_rq, _rs, _n, _c) => {
+        isHookCalled = true
+      }
+    }))
+    const res = await request(app).get('/')
+    expect(res.body).toEqual({ok: true})
+    const res2 = await request(app).get('/')
+    expect(res2.body).toEqual({ok: true})
+    expect(isHookCalled).toBe(true)
+    initCounter()
   })
 
-  test('Config LRU', () => {
+  test('Config LRU', async () => {
+    let isLengthCalled = false
+    const app = initServer(rootRoute, getCacheMiddleware({
+      configLRU: {
+        max: 10,
+        maxAge: 100000,
+        length: (_value) => {
+          isLengthCalled = true
+          return 1
+        }
+      }
+    }))
+    const res = await request(app).get('/')
+    expect(res.body).toEqual({ok: true})
+    const res2 = await request(app).get('/')
+    expect(res2.body).toEqual({ok: true})
 
+    setTimeout(() => {
+      expect(isLengthCalled).toBe(true)
+    }, 100)
+
+    initCounter()
   })
 
-  test('config cachePolicy', () => {
+  test('config cachePolicy', async () => {
+    const app = initServer(policyRoute, getCacheMiddleware({
+      cachePolicy: {
+        routeList: [{
+          id: '/route1', //id is not require
+          check: (req) => /route1/.test(req.url),
+        }, {
+          id: '/route2',
+          check: (req) => {
+            return /route2/.test(req.url)
+          },
+        }],
+        exceptList: [{
+          id: '/ex1',
+          check: (req) => /ex1/.test(req.url),
+        }, {
+          id: '/ex2',
+          check: (req) => /ex2/.test(req.url),
+        }],
+      }
+    }))
+    await request(app).get('/route1')
+    await request(app).get('/route1')
+    await request(app).get('/route1')
 
+    expect(callCountRoute1).toBe(1)
+
+    await request(app).get('/route2')
+    await request(app).get('/route2')
+    await request(app).get('/route2')
+
+    expect(callCountRoute2).toBe(1)
+
+    await request(app).get('/e1')
+    await request(app).get('/e1')
+    await request(app).get('/e1')
+
+    expect(callCountE1).toBe(3)
+
+    await request(app).get('/e2')
+    await request(app).get('/e2')
+    await request(app).get('/e2')
+
+    expect(callCountE2).toBe(3)
   })
 
-  test('inject LRU', () => {
+  test('inject LRU', async () => {
+    let isLengthCalled = false
+    const instance: LRU.Cache<string, any> = new LRU({
+      max: 10,
+      maxAge: 100000,
+      length: (_value) => {
+        isLengthCalled = true
+        return 1
+      }
+    })
+    const app = initServer(rootRoute, getCacheMiddleware({
+      LRU: instance
+    }))
+    const res = await request(app).get('/')
+    expect(res.body).toEqual({ok: true})
+    const res2 = await request(app).get('/')
+    expect(res2.body).toEqual({ok: false})
 
+    setTimeout(() => {
+      expect(isLengthCalled).toBe(true)
+    }, 100)
   })
 })

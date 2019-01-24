@@ -52,7 +52,7 @@ interface checkByRequestFunc {
  * 정책 리스트
  */
 interface PolicyList {
-  id: string,
+  id?: string,
   check: checkByRequestFunc
 }
 
@@ -93,12 +93,12 @@ interface resFunc {
 }
 
 interface ConfigCache {
-  configLRU: LRU.Options,
-  cachePolicy: CachePolicy,
-  LRU: LRU.Cache<keyType, any>,
-  hook: hookFunc,
-  generateKey: generateKeyFunc,
-  resFunc: resFunc,
+  configLRU?: LRU.Options,
+  cachePolicy?: CachePolicy,
+  LRU?: LRU.Cache<keyType, any>,
+  hook?: hookFunc,
+  generateKey?: generateKeyFunc,
+  resFunc?: resFunc,
 }
 
 const resFunc: resFunc = (res: express.Response, cached) => {
@@ -165,9 +165,13 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
       res.send = function (body) {
         log('requested !!!')
         send(body)
+
+        if ( typeof body !== 'string' ) {
+          return res;
+        }
+
         const {statusCode, headersSent} = res
         const headers = res.getHeaders()
-        // TODO: max age
         setCache({ req, key: generateKey(req) }, { body, statusCode, headersSent, headers })
         return res
       }
