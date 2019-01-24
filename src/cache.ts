@@ -23,7 +23,7 @@ const defaultLRUConfig = {
     // @ts-ignore
     const NumberLength = value => value.toString().length
 
-    const strOrNumberLength = (value) => {
+    const strOrNumberLength = (value: string | number) => {
       if (is(String, value)) {
         return stringLength(value)
       }
@@ -103,7 +103,7 @@ interface ConfigCache {
 
 const resFunc: resFunc = (res: express.Response, cached) => {
   log('res cached')
-  const {body, statusCode, headersSent, headers} = cached
+  const {body, statusCode = 200, headersSent, headers} = cached
   if (headersSent && headers) {
     res.set(headers)
   }
@@ -112,15 +112,12 @@ const resFunc: resFunc = (res: express.Response, cached) => {
 
 const defaultConfigCache = {
   configLRU: defaultLRUConfig,
-  cachePolicy: null,
-  LRU: null,
-  hook: null,
   generateKey,
   resFunc,
 }
 
-let instance = null;
-const getLRU: (option) => LRU.Cache<any, any> = options => {
+let instance: LRU.Cache<any, any>;
+const getLRU: (option?: LRU.Options) => LRU.Cache<any, any> = options => {
   if (isNil(instance)) {
     instance = new LRU(options)
   }
@@ -132,14 +129,14 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
   const cache: LRU.Cache<keyType, any> = configCache.LRU || getLRU(lruOptions)
 
   function CacheMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const getUseCache = (req) => {
-      const exists = (list) => {
+    const getUseCache = (req: express.Request) => {
+      const exists = (list: Array<PolicyList>) => {
         if (isNil(list)) return false
-        return !!list.find(({check}) => check(req))
+        return !!list.find(({check}: PolicyList) => check(req))
       }
 
-      const exceptList = path(['cachePolicy', 'exceptList'], configCache)
-      const routeList = path(['cachePolicy', 'routeList'], configCache)
+      const exceptList = path<Array<PolicyList>>(['cachePolicy', 'exceptList'], configCache) || []
+      const routeList = path<Array<PolicyList>>(['cachePolicy', 'routeList'], configCache) || []
 
       if (isNil(exceptList) && isNil(routeList)) return true
       if (exists(exceptList)) return false
@@ -166,13 +163,13 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
         log('requested !!!')
         send(body)
 
-        if ( typeof body !== 'string' ) {
+        if (typeof body !== 'string') {
           return res;
         }
 
         const {statusCode, headersSent} = res
         const headers = res.getHeaders()
-        setCache({ req, key: generateKey(req) }, { body, statusCode, headersSent, headers })
+        setCache({req, key: generateKey(req)}, {body, statusCode, headersSent, headers})
         return res
       }
 
@@ -201,10 +198,11 @@ interface keyOrReq {
  * @param maxAge
  */
 function setCache({key, req}: keyOrReq, cacheInfo: CacheInfo, maxAge?: number) {
-  const cache = getLRU(null)
-  const getKey = ({key, req}) => {
+  const cache = getLRU()
+  const getKey = ({key, req}: keyOrReq) => {
     if (!isNil(key)) return key
-    return generateKey(req)
+    if (!isNil(req)) return generateKey(req)
+    throw new Error('need key or request!')
   }
   cache.set(getKey({key, req}), cacheInfo, maxAge)
 }

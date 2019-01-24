@@ -3,7 +3,7 @@ import {getCacheMiddleware} from "../cache";
 import * as express from 'express'
 import * as request from 'supertest'
 
-const initServer = (routeFunc, middleware) => {
+const initServer = (routeFunc: (app: express.Application) => void, middleware: any) => {
   const app = express()
   if (middleware) app.use(middleware)
   if (routeFunc) routeFunc(app)
@@ -11,8 +11,8 @@ const initServer = (routeFunc, middleware) => {
 }
 
 let counter = 0
-const rootRoute = (app) => {
-  app.get('/', (_, res) => {
+const rootRoute = (app: any) => {
+  app.get('/', (_: any, res: any) => {
     counter++
     if (counter > 1) {
       res.json({ok: false})
@@ -27,17 +27,17 @@ let callCountRoute2 = 0
 let callCountE1 = 0
 let callCountE2 = 0
 
-const policyRoute = (app) => {
-  app.get('/route1', (_, res) => {
+const policyRoute = (app: any) => {
+  app.get('/route1', (_: any, res: any) => {
     callCountRoute1++
     res.json({ok: true})
-  }).get('/route2', (_, res) => {
+  }).get('/route2', (_: any, res: any) => {
     callCountRoute2++
     res.json({ok: true})
-  }).get('/e1', (_, res) => {
+  }).get('/e1', (_: any, res: any) => {
     callCountE1++
     res.json({ok: true})
-  }).get('/e2', (_, res) => {
+  }).get('/e2', (_: any, res: any) => {
     callCountE2++
     res.json({ok: true})
   })
@@ -51,6 +51,8 @@ test('some test', () => {
   success()
 })
 
+// TODO: res test
+// file etc
 describe('getCacheMiddleware', () => {
   test('No cache', async () => {
     const app = initServer(rootRoute, null)
