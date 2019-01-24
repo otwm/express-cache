@@ -1,5 +1,5 @@
 const express = require('express')
-const { getCacheMiddleware } = require('./lib/express-cache/src/index.js')
+const { getCacheMiddleware } = require('./lib/express-cache/index.js')
 const server = express()
 
 let isLengthCalled = false
@@ -26,14 +26,23 @@ server.use(getCacheMiddleware({
   }
 }))
 
-server.get('/', (_, res) => {
-  res.send('test')
-}).get('/test', (_ , res) => {
-  res.send('test')
-}).get('/ep', (_ , res) => {
-  res.send('e')
-})
+// server.get('/', (_, res) => {
+//   res.send('test')
+// }).get('/test', (_ , res) => {
+//   res.send('test')
+// }).get('/ep', (_ , res) => {
+//   res.send('e')
+// })
 
+server.get('/json', (_, res) => {
+  res.json({ok: true})
+}).get('/send', (_, res) => {
+  res.send('test')
+}).get('/sendStatus', (_, res) => {
+  res.sendStatus(200)
+}).get('/jsonp', (_, res) => {
+  res.jsonp({ok: true})
+})
 
 server.listen(8080, () => {
 

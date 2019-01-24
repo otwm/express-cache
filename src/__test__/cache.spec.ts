@@ -43,16 +43,20 @@ const policyRoute = (app: any) => {
   })
 }
 
+const variousRoute = (app: any) => {
+  app.get('/json', (_: any, res: any) => {
+    res.json({ok: true})
+  }).get('/send', (_: any, res: any) => {
+    res.send('test')
+  }).get('/sendStatus', (_: any, res: any) => {
+    res.sendStatus(200)
+  }).get('/jsonp', (_: any, res: any) => {
+    res.jsonp({ok: true})
+  })
+}
+
 const initCounter = () => counter = 0
 
-const success = () => expect(1).toBe(1)
-
-test('some test', () => {
-  success()
-})
-
-// TODO: res test
-// file etc
 describe('getCacheMiddleware', () => {
   test('No cache', async () => {
     const app = initServer(rootRoute, null)
@@ -178,5 +182,19 @@ describe('getCacheMiddleware', () => {
     setTimeout(() => {
       expect(isLengthCalled).toBe(true)
     }, 100)
+  })
+
+  test('various res', async () => {
+    const app = initServer(variousRoute, getCacheMiddleware())
+    const res = await request(app).get('/json')
+    expect(res.body).toEqual({ok: true})
+    const res4 = await request(app).get('/sendStatus')
+    expect(res4.text).toEqual('OK')
+    const res5 = await request(app).get('/jsonp')
+    expect(res5.body).toEqual({ok: true})
+    const res3 = await request(app).get('/send')
+    expect(res3.text).toEqual('test')
+
+    initCounter()
   })
 })

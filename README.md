@@ -5,30 +5,17 @@
 ### 기본 사용법
 ```ecmascript 6
 // server.js
-import { getCacheMiddleware } from 'express-cacher'
+import { getCacheMiddleware } from 'express-cache'
 //...
-app.use(getCacheMiddleware())
-
-
-// router
-import { setCache } from 'express-cacher'
-app.get('/someRoute', (req, res, next ) => {
-  const cacheInfo = {
-    type: 'JSON', // JSON or TEXT or ...
-    status: 200,
-    value: 'som value',
-  }; 
-  setCache(cacheInfo)
-})
- 
+app.use(getCacheMiddleware()) 
 ```
 
 ### hook injection
 ```ecmascript 6
 // server.js
-import { getCacheMiddleware } from 'express-cacher'
+import { getCacheMiddleware } from 'express-cache'
 //...
-function logging({ req, status, value, key }) {
+function logging(req, res, next, cached) {
   debug(`req info: ${req.url} ${req.method}`)
   debug(`cache info: ${key} ${value}`)
 }
@@ -39,7 +26,7 @@ app.use(getCacheMiddleware({ hook: logging}))
 ### Config LRU
 ```ecmascript 6
 // server.js
-import { getCacheMiddleware } from 'express-cacher'
+import { getCacheMiddleware } from 'express-cache'
 //...
 app.use(getCacheMiddleware({
   configLRU : {
@@ -60,7 +47,7 @@ exceptList 존재하면, exceptList 제외
 
 ```ecmascript 6
 // server.js
-import { getCacheMiddleware, strategy } from 'express-cacher'
+import { getCacheMiddleware, strategy } from 'express-cache'
 //...
 app.use(getCacheMiddleware({
   cachePolicy: {
@@ -84,7 +71,7 @@ app.use(getCacheMiddleware({
 cluster 등 LRU 공유 필요 시 외부에서 주입
 ```ecmascript 6
 // server.js
-import { getCacheMiddleware } from 'express-cacher'
+import { getCacheMiddleware } from 'express-cache'
 //...
 app.use(getCacheMiddleware({
   LRU: myLRU
