@@ -3,4 +3,7 @@ export {
   setCache,
   Time,
   defaultLRUConfig,
+  generateKey,
+  resFunc,
+  getLRU,
 } from './cache'
