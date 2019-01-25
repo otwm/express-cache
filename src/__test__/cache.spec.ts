@@ -55,6 +55,22 @@ const variousRoute = (app: any) => {
   })
 }
 
+const paramRoute = (app: any) => {
+  app.get('/json', (req: any, res: any) => {
+    if( req.query.a == 1 ) {
+      res.json({ok: false})
+      return
+    }
+    res.json({ok: true})
+  }).get('/send', (_: any, res: any) => {
+    res.send('test')
+  }).get('/sendStatus', (_: any, res: any) => {
+    res.sendStatus(200)
+  }).get('/jsonp', (_: any, res: any) => {
+    res.jsonp({ok: true})
+  })
+}
+
 const initCounter = () => counter = 0
 
 describe('getCacheMiddleware', () => {
@@ -196,5 +212,17 @@ describe('getCacheMiddleware', () => {
     expect(res3.text).toEqual('test')
 
     initCounter()
+  })
+
+  test('param cache', async () => {
+    const app = initServer(paramRoute, getCacheMiddleware())
+    await request(app).get('/json')
+    await request(app).get('/json?a=1')
+
+    const a1Res = await request(app).get('/json?a=1')
+    expect(a1Res.body).toEqual({ok: false})
+
+    const res = await request(app).get('/json')
+    expect(res.body).toEqual({ok: true})
   })
 })

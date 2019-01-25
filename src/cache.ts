@@ -96,6 +96,10 @@ interface resFunc {
   (res: express.Response, cacheInfo: CacheInfo): void
 }
 
+interface isError {
+  (req: express.Request, res: express.Response): boolean
+}
+
 interface ConfigCache {
   configLRU?: LRU.Options,
   cachePolicy?: CachePolicy,
@@ -103,6 +107,7 @@ interface ConfigCache {
   hook?: hookFunc,
   generateKey?: generateKeyFunc,
   resFunc?: resFunc,
+  isError?: isError,
 }
 
 const resFunc: resFunc = (res: express.Response, cached) => {
@@ -115,10 +120,15 @@ const resFunc: resFunc = (res: express.Response, cached) => {
   res.status(statusCode).send(body)
 }
 
+const isErrorFunc: isError = (_, res) => {
+  return res.statusCode > 400
+}
+
 const defaultConfigCache = {
   configLRU: defaultLRUConfig,
   generateKey,
   resFunc,
+  isError: isErrorFunc,
 }
 
 let instance: LRU.Cache<any, any>;
@@ -177,6 +187,11 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
         const {statusCode, headersSent} = res
         const headers = res.getHeaders()
         // TODO: set route maxAge
+
+        if (configCache.isError && configCache.isError(req, res)) {
+          log('cache error')
+          return res
+        }
         setCache({ req, key: generateKey(req) }, { body: buffBody || body , statusCode, headersSent, headers })
         return res
       }

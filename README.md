@@ -103,20 +103,23 @@ enum Time {
 const defaultLRUConfig = {
   max: 1000,
   maxAge: 5 * Time.minute,
-  length: function(value = '', key) {
+  // @ts-ignore
+  length: function (value = '') {
+    // @ts-ignore
     const stringLength = value => value.length / 10
+    // @ts-ignore
     const NumberLength = value => value.toString().length
-    
-    const strOrNumberLength = (value) => {
-      if (is(value,String)) {
+
+    const strOrNumberLength = (value: string | number) => {
+      if (is(String, value)) {
         return stringLength(value)
       }
-      if (is(value,Number)) {
+      if (is(Number, value)) {
         return NumberLength(value)
       }
       return 1 // other
     }
-    if (is(value,Object)) {
+    if (is(Object, value)) {
       Object.values(value).map(strOrNumberLength).reduce((result, current) => {
         return result + current
       }, 0)
@@ -124,6 +127,33 @@ const defaultLRUConfig = {
     return strOrNumberLength(value)
   },
 }
+
+const generateKey: generateKeyFunc = function (req: express.Request) {
+  return `${req.originalUrl}-${req.method}`
+}
+
+const isErrorFunc: isError = (_, res) => {
+  return res.statusCode > 400
+}
+
+const resFunc: resFunc = (res: express.Response, cached) => {
+  const reqUrl = path<string>(['req', 'url'], res)
+  log(`cached send reqUrl : ${reqUrl}`)
+  const {body, statusCode = 200, headersSent, headers} = cached
+  if (headersSent && headers) {
+    res.set(headers)
+  }
+  res.status(statusCode).send(body)
+}
+
+const defaultConfigCache = {
+  configLRU: defaultLRUConfig,
+  generateKey,
+  resFunc,
+  isError: isErrorFunc,
+}
+
+
 ```
 
 ## ref
