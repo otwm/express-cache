@@ -89,7 +89,7 @@ interface generateKeyFunc {
 }
 
 const generateKey: generateKeyFunc = function (req: express.Request) {
-  return `${req.url}-${req.method}`
+  return `${req.originalUrl}-${req.method}`
 }
 
 interface resFunc {
@@ -150,7 +150,7 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
     }
 
     const useCache = getUseCache(req)
-    log(`reqUrl : ${req.url} useCache: ${useCache}`)
+    log(`reqUrl : ${req.originalUrl} useCache: ${useCache}`)
 
     if (!useCache) {
       next();
