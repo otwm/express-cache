@@ -8,6 +8,8 @@ server.use(getCacheMiddleware({
   cachePolicy: {
     routeList: [{
       check: req => /test/.test(req.url)
+    },{
+      check: req => /json/.test(req.url)
     }],
     exceptList: [{
       check: req => /ep/.test(req.url)

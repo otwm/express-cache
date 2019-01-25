@@ -1,13 +1,14 @@
 {
   "name": "@otwmoo/express-cache",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "익스프레스 용 캐쉬. 기본은 LRU 기반 캐쉬",
-  "main": "index.js",
+  "main": "lib/express-cache/index.js",
   "scripts": {
     "test": "DEBUG=express-cache jest --watchAll",
     "testb": "node --inspect-brk --inspect ./node_modules/.bin/jest -i  --watch",
     "build": "rimraf lib && tsc",
-    "boot": "DEBUG=express-cache node --inspect boot.js"
+    "boot": "DEBUG=express-cache::log node --inspect boot.js",
+    "prepublish": "npm run build"
   },
   "keywords": [],
   "author": "otwm <otwmoo@gmail.com> (https://github.com/otwm)",

@@ -56,11 +56,15 @@ interface PolicyList {
   check: checkByRequestFunc
 }
 
+interface PolicyWithMaxAge extends PolicyList {
+  maxAge?: number
+}
+
 /**
  * 정책 리스트
  */
 interface CachePolicy {
-  routeList?: Array<PolicyList>,
+  routeList?: Array<PolicyWithMaxAge>,
   exceptList?: Array<PolicyList>,
 }
 
@@ -102,7 +106,8 @@ interface ConfigCache {
 }
 
 const resFunc: resFunc = (res: express.Response, cached) => {
-  log('res cached')
+  const reqUrl = path<string>(['req', 'url'], res)
+  log(`cached send reqUrl : ${reqUrl}`)
   const {body, statusCode = 200, headersSent, headers} = cached
   if (headersSent && headers) {
     res.set(headers)
@@ -145,7 +150,7 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
     }
 
     const useCache = getUseCache(req)
-    log(`useCache: ${useCache}`)
+    log(`reqUrl : ${req.url} useCache: ${useCache}`)
 
     if (!useCache) {
       next();
@@ -160,16 +165,19 @@ function getCacheMiddleware(configCache: ConfigCache = defaultConfigCache) {
     if (!cached.body) {
       const send = res.send.bind(res)
       res.send = function (body) {
-        log('requested !!!')
+        const reqUrl = path<string>(['req', 'url'], res)
+        log(`reqUrl: ${reqUrl} requested`)
         send(body)
 
-        if ( typeof body !== 'string' ) {
+        let buffBody;
+        if ( typeof body !== 'string' && !Buffer.isBuffer(body)) {
           return res;
         }
 
         const {statusCode, headersSent} = res
         const headers = res.getHeaders()
-        setCache({ req, key: generateKey(req) }, { body, statusCode, headersSent, headers })
+        // TODO: set route maxAge
+        setCache({ req, key: generateKey(req) }, { body: buffBody || body , statusCode, headersSent, headers })
         return res
       }
 
@@ -214,4 +222,5 @@ export {
   defaultLRUConfig,
   generateKey,
   resFunc,
+  getLRU,
 }

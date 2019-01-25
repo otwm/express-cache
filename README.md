@@ -78,6 +78,13 @@ app.use(getCacheMiddleware({
 }))
 ```
 
+## prone
+```ecmascript 6
+import { getLRU } from 'express-cache'
+
+getLRU().prone()
+```
+
 ## change cache
 next iteration
 
@@ -118,3 +125,6 @@ const defaultLRUConfig = {
   },
 }
 ```
+
+## ref
+https://github.com/isaacs/node-lru-cache
