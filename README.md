@@ -1,5 +1,9 @@
 # express cache
 Cache Middleware for Express. The default is LRU-based cache 
+    
+    
+[![Build Status](https://travis-ci.com/otwm/express-cache.svg?branch=master)](https://travis-ci.com/otwm/express-cache)
+[![Coverage Status](https://coveralls.io/repos/github/otwm/express-cache/badge.svg?branch=master)](https://coveralls.io/github/otwm/express-cache?branch=master)
 
 ## how to use
 ### basic
