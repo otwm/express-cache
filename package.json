@@ -8,6 +8,7 @@
     "watch": "DEBUG=express-cache jest --watchAll",
     "testb": "node --inspect-brk --inspect ./node_modules/.bin/jest -i  --watch",
     "build": "rimraf lib && tsc",
+    "nv": "npm version patch -m 'Version %s - add sweet badges'",
     "boot": "DEBUG=express-cache::log node --inspect boot.js",
     "lint": "tslint",
     "prepublish": "npm run build",
