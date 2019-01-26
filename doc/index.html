@@ -1,0 +1,306 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>@otwmoo/express-cache</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">@otwmoo/express-cache</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> @otwmoo/express-cache</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="express-cache">express cache</h1>
+				<p>Cache Middleware for Express. The default is LRU-based cache </p>
+				<h2 id="how-to-use">how to use</h2>
+				<h3 id="basic">basic</h3>
+				<p><code>`</code>ecmascript 6
+					// server.js
+					import { getCacheMiddleware } from &#39;express-cache&#39;
+					//...
+				app.use(getCacheMiddleware()) </p>
+				<pre><code>
+### hook injection
+```ecmascript <span class="hljs-number">6</span>
+<span class="hljs-comment">// server.js</span>
+<span class="hljs-keyword">import</span> { getCacheMiddleware } <span class="hljs-keyword">from</span> <span class="hljs-string">'express-cache'</span>
+
+<span class="hljs-comment">// logging during cache operation</span>
+function logging(req, res, next, cached) {
+  debug(`req info: ${req.url} ${req.method}`)
+  debug(`cache info: ${key} ${value}`)
+}
+
+app.use(getCacheMiddleware({ hook: logging}))</code></pre><h3 id="config-lru">Config LRU</h3>
+				<p>ref. <a href="https://github.com/isaacs/node-lru-cache">https://github.com/isaacs/node-lru-cache</a>
+					<code>`</code>ecmascript 6
+					// server.js
+					import { getCacheMiddleware } from &#39;express-cache&#39;
+					//...
+					app.use(getCacheMiddleware({
+					configLRU : {
+					max: 1,
+					maxAge: 100,
+					length: function(value, key) {
+					//...
+					}
+					}
+					}))
+				//</p>
+				<pre><code>## config cachePolicy
+routeList 존재하면, 정확히 routeList 명시된 것에만 적용, 없으면 전체 적용
+exceptList 존재하면, exceptList 제외
+
+routeList If present, applies exactly to the routeList specified;
+exceptList Except, exceptList Except
+
+```ecmascript <span class="hljs-number">6</span>
+// server.js
+<span class="hljs-keyword">import</span> { getCacheMiddleware, strategy } <span class="hljs-keyword">from</span> <span class="hljs-string">'express-cache'</span>
+//...
+app.use(getCacheMiddleware({
+  <span class="hljs-name">cachePolicy</span>: {
+    <span class="hljs-name">routeList</span>: [ {
+      <span class="hljs-name">id</span>: <span class="hljs-string">'someUrl'</span>,
+      <span class="hljs-name">check</span>: <span class="hljs-function"><span class="hljs-params">(req)</span> =&gt;</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> // <span class="hljs-keyword">or</span> <span class="hljs-literal">false</span>
+      }, 
+    }],
+    <span class="hljs-name">exceptList</span>: [{
+      <span class="hljs-name">id</span>: <span class="hljs-string">'someUrl'</span>,
+      <span class="hljs-name">check</span>: <span class="hljs-function"><span class="hljs-params">(req)</span> =&gt;</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> // <span class="hljs-keyword">or</span> <span class="hljs-literal">false</span>
+      }, 
+    }],
+  }
+}))</code></pre><h2 id="inject-lru">inject LRU</h2>
+				<p>cluster 등 LRU 공유 필요 시 외부에서 주입
+					<code>`</code>ecmascript 6
+					// server.js
+				import { getCacheMiddleware } from &#39;express-cache&#39;</p>
+				<p>//cluster, etc. If LRU sharing is required,
+					app.use(getCacheMiddleware({
+					LRU: myLRU
+				}))</p>
+				<pre><code>
+## <span class="hljs-keyword">export</span> LRU Cache
+```ecmascript <span class="hljs-number">6</span>
+<span class="hljs-keyword">import</span> { getLRU } <span class="hljs-keyword">from</span> <span class="hljs-string">'express-cache'</span>
+
+getLRU().resert()</code></pre><h2 id="default-value">default value</h2>
+				<pre><code class="language-typescript"><span class="hljs-keyword">const</span> sec = <span class="hljs-number">1000</span>
+<span class="hljs-keyword">const</span> minute = <span class="hljs-number">1000</span> * <span class="hljs-number">60</span>
+<span class="hljs-keyword">const</span> hour = minute * <span class="hljs-number">60</span>
+<span class="hljs-keyword">const</span> halfDay = hour * <span class="hljs-number">12</span>
+<span class="hljs-keyword">const</span> day = hour * <span class="hljs-number">24</span>   
+
+<span class="hljs-keyword">enum</span> Time {
+  sec, minute, hour, halfDay, day,
+}
+
+<span class="hljs-keyword">const</span> defaultLRUConfig = {
+  max: <span class="hljs-number">1000</span>,
+  maxAge: <span class="hljs-number">5</span> * Time.minute,
+  <span class="hljs-comment">// @ts-ignore</span>
+  length: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value = ''</span>) </span>{
+    <span class="hljs-comment">// @ts-ignore</span>
+    <span class="hljs-keyword">const</span> stringLength = <span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> value.length / <span class="hljs-number">10</span>
+    <span class="hljs-comment">// @ts-ignore</span>
+    <span class="hljs-keyword">const</span> NumberLength = <span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> value.toString().length
+
+    <span class="hljs-keyword">const</span> strOrNumberLength = <span class="hljs-function">(<span class="hljs-params">value: <span class="hljs-built_in">string</span> | <span class="hljs-built_in">number</span></span>) =&gt;</span> {
+      <span class="hljs-keyword">if</span> (is(<span class="hljs-built_in">String</span>, value)) {
+        <span class="hljs-keyword">return</span> stringLength(value)
+      }
+      <span class="hljs-keyword">if</span> (is(<span class="hljs-built_in">Number</span>, value)) {
+        <span class="hljs-keyword">return</span> NumberLength(value)
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-number">1</span> <span class="hljs-comment">// other</span>
+    }
+    <span class="hljs-keyword">if</span> (is(<span class="hljs-built_in">Object</span>, value)) {
+      <span class="hljs-built_in">Object</span>.values(value).map(strOrNumberLength).reduce(<span class="hljs-function">(<span class="hljs-params">result, current</span>) =&gt;</span> {
+        <span class="hljs-keyword">return</span> result + current
+      }, <span class="hljs-number">0</span>)
+    }
+    <span class="hljs-keyword">return</span> strOrNumberLength(value)
+  },
+}
+
+<span class="hljs-keyword">const</span> generateKey: generateKeyFunc = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req: express.Request</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${req.originalUrl}</span>-<span class="hljs-subst">${req.method}</span>`</span>
+}
+
+<span class="hljs-keyword">const</span> isErrorFunc: isError = <span class="hljs-function">(<span class="hljs-params">_, res</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> res.statusCode &gt; <span class="hljs-number">400</span>
+}
+
+<span class="hljs-keyword">const</span> resFunc: resFunc = <span class="hljs-function">(<span class="hljs-params">res: express.Response, cached</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> reqUrl = path&lt;<span class="hljs-built_in">string</span>&gt;([<span class="hljs-string">'req'</span>, <span class="hljs-string">'url'</span>], res)
+  log(<span class="hljs-string">`cached send reqUrl : <span class="hljs-subst">${reqUrl}</span>`</span>)
+  <span class="hljs-keyword">const</span> {body, statusCode = <span class="hljs-number">200</span>, headersSent, headers} = cached
+  <span class="hljs-keyword">if</span> (headersSent &amp;&amp; headers) {
+    res.set(headers)
+  }
+  res.status(statusCode).send(body)
+}
+
+<span class="hljs-keyword">const</span> defaultConfigCache = {
+  configLRU: defaultLRUConfig,
+  generateKey,
+  resFunc,
+  isError: isErrorFunc,
+}
+
+</code></pre>
+				<h2 id="ref">ref</h2>
+				<p><a href="https://github.com/isaacs/node-lru-cache">https://github.com/isaacs/node-lru-cache</a></p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/___test___cache_spec_.html">"__test__/cache.spec"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_cache_.html">"cache"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_index_.html">"index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_log_.html">"log"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
