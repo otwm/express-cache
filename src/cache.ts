@@ -77,6 +77,9 @@ interface hookFunc {
 
 type keyType = string | symbol
 
+/**
+ * cache info when res.send
+ */
 interface CacheInfo {
   headersSent?: boolean,
   headers?: object,
@@ -84,6 +87,9 @@ interface CacheInfo {
   body: any,
 }
 
+/**
+ * rule 4 key generate
+ */
 interface generateKeyFunc {
   (req: express.Request): keyType,
 }
@@ -96,6 +102,9 @@ interface resFunc {
   (res: express.Response, cacheInfo: CacheInfo): void
 }
 
+/**
+ * Errors are not cached
+ */
 interface isError {
   (req: express.Request, res: express.Response): boolean
 }

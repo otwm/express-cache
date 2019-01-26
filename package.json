@@ -1,18 +1,25 @@
 {
   "name": "@otwmoo/express-cache",
-  "version": "0.0.12",
-  "description": "익스프레스 용 캐쉬. 기본은 LRU 기반 캐쉬",
+  "version": "0.0.13",
+  "description": "express-cache by LRU",
   "main": "lib/express-cache/index.js",
   "scripts": {
     "test": "DEBUG=express-cache jest --watchAll",
     "testb": "node --inspect-brk --inspect ./node_modules/.bin/jest -i  --watch",
     "build": "rimraf lib && tsc",
     "boot": "DEBUG=express-cache::log node --inspect boot.js",
-    "prepublish": "npm run build"
+    "lint": "tslint",
+    "prepublish": "npm run build",
+    "doc": "typedoc --out doc"
   },
-  "keywords": [],
+  "keywords": [
+    "LRU",
+    "cache",
+    "express"
+  ],
+  "repository": "https://github.com/otwm/express-cache",
   "author": "otwm <otwmoo@gmail.com> (https://github.com/otwm)",
-  "license": "ISC",
+  "license": "apache 2.0",
   "dependencies": {
     "debug": "^4.1.1",
     "lru-cache": "^5.1.1",
@@ -36,6 +43,7 @@
     "tslint": "^5.12.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.17.0",
-    "tslint-plugin-prettier": "^2.0.1"
+    "tslint-plugin-prettier": "^2.0.1",
+    "typedoc": "^0.14.2"
   }
 }

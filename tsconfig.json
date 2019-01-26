@@ -12,12 +12,13 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "declaration": true,
+    "declarationDir": "lib/typings",
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
     "outDir": "./lib/express-cache",
     "typeRoots": [
-      "./node_modules/@types", "src/typings"
+      "./node_modules/@types", "typings"
     ],
     "lib": ["dom", "es5", "es6", "es2017.object", "es2017"]
   },

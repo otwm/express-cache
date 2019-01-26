@@ -1,8 +1,8 @@
 # express cache
-익스프레스 용 캐쉬. 기본은 LRU 기반 캐쉬 
+Cache Middleware for Express. The default is LRU-based cache 
 
 ## how to use
-### 기본 사용법
+### basic
 ```ecmascript 6
 // server.js
 import { getCacheMiddleware } from 'express-cache'
@@ -14,7 +14,8 @@ app.use(getCacheMiddleware())
 ```ecmascript 6
 // server.js
 import { getCacheMiddleware } from 'express-cache'
-//...
+
+// logging during cache operation
 function logging(req, res, next, cached) {
   debug(`req info: ${req.url} ${req.method}`)
   debug(`cache info: ${key} ${value}`)
@@ -24,6 +25,7 @@ app.use(getCacheMiddleware({ hook: logging}))
 ```
 
 ### Config LRU
+ref. https://github.com/isaacs/node-lru-cache
 ```ecmascript 6
 // server.js
 import { getCacheMiddleware } from 'express-cache'
@@ -37,13 +39,15 @@ app.use(getCacheMiddleware({
     }
   }
 }))
-
 //
 
 ```
 ## config cachePolicy
 routeList 존재하면, 정확히 routeList 명시된 것에만 적용, 없으면 전체 적용
 exceptList 존재하면, exceptList 제외
+
+routeList If present, applies exactly to the routeList specified;
+exceptList Except, exceptList Except
 
 ```ecmascript 6
 // server.js
@@ -72,21 +76,19 @@ cluster 등 LRU 공유 필요 시 외부에서 주입
 ```ecmascript 6
 // server.js
 import { getCacheMiddleware } from 'express-cache'
-//...
+
+//cluster, etc. If LRU sharing is required,
 app.use(getCacheMiddleware({
   LRU: myLRU
 }))
 ```
 
-## prone
+## export LRU Cache
 ```ecmascript 6
 import { getLRU } from 'express-cache'
 
-getLRU().prone()
+getLRU().resert()
 ```
-
-## change cache
-next iteration
 
 ## default value
 ```typescript
